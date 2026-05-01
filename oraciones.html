@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Oraciones">
+<title>Oraciones</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8cb7a;
+    --gold-dim: #8a6f35;
+    --crimson: #8b1a1a;
+    --crimson-light: #b52a2a;
+    --parchment: #f5efe0;
+    --parchment-dark: #ede3c8;
+    --ink: #1a1208;
+    --ink-light: #3d2f12;
+    --shadow: rgba(26,18,8,0.35);
+    --bg-dark: #0e0a04;
+    --panel: #1c1508;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--parchment);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── SCREENS ── */
+  .screen { 
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.45s ease;
+    overflow: hidden;
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* ── COVER ── */
+  #cover {
+    background: radial-gradient(ellipse at 50% 30%, #2a1a05 0%, #0e0a04 70%);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 30px;
+  }
+  .cover-ornament {
+    font-size: 2rem; color: var(--gold); 
+    letter-spacing: 0.5em;
+    margin-bottom: 24px;
+    animation: fadeUp 1s ease both;
+  }
+  .cover-title {
+    font-family: 'IM Fell English', serif;
+    font-size: 3.2rem; line-height: 1;
+    color: var(--gold-light);
+    text-shadow: 0 0 40px rgba(201,168,76,0.4);
+    margin-bottom: 10px;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+  .cover-subtitle {
+    font-size: 0.9rem; 
+    color: var(--gold-dim);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+    animation: fadeUp 1s 0.35s ease both;
+    font-style: italic;
+  }
+  .cross-big {
+    width: 80px; height: 80px;
+    margin: 0 auto 40px;
+    animation: fadeUp 1s 0.15s ease both;
+  }
+  .cross-big svg { width: 100%; height: 100%; }
+  .cover-quote {
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--parchment-dark);
+    line-height: 1.7;
+    max-width: 280px;
+    margin: 0 auto 50px;
+    opacity: 0.8;
+    animation: fadeUp 1s 0.5s ease both;
+  }
+  .cover-quote cite {
+    display: block; margin-top: 12px;
+    font-size: 0.8rem; letter-spacing: 0.15em;
+    color: var(--gold-dim); font-style: normal; text-transform: uppercase;
+  }
+  .btn-enter {
+    background: none;
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    cursor: pointer;
+    animation: fadeUp 1s 0.65s ease both;
+    transition: background 0.3s, color 0.3s;
+  }
+  .btn-enter:active { background: var(--gold); color: var(--bg-dark); }
+
+  /* ── NAV / HOME ── */
+  #home {
+    background: var(--bg-dark);
+  }
+  .top-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 52px 20px 16px;
+    background: linear-gradient(to bottom, #1c1508, transparent);
+    flex-shrink: 0;
+  }
+  .top-bar-title {
+    font-family: 'IM Fell English', serif;
+    font-size: 1.4rem; color: var(--gold-light);
+    flex: 1;
+  }
+  .icon-btn {
+    background: none; border: none;
+    color: var(--gold-dim); font-size: 1.4rem;
+    cursor: pointer; padding: 6px;
+    transition: color 0.2s;
+  }
+  .icon-btn:active { color: var(--gold-light); }
+
+  .section-tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    flex-shrink: 0; overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 20px;
+  }
+  .section-tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    background: none; border: none;
+    color: var(--gold-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    cursor: pointer; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+
+  .home-scroll {
+    flex: 1; overflow-y: auto;
+    padding: 8px 0 40px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .home-scroll::-webkit-scrollbar { display: none; }
+
+  .prayer-group { display: none; }
+  .prayer-group.visible { display: block; }
+
+  .day-label {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold-dim); padding: 18px 20px 6px;
+  }
+  .prayer-item {
+    display: flex; align-items: center;
+    padding: 14px 20px; gap: 14px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    cursor: pointer; transition: background 0.2s;
+  }
+  .prayer-item:active { background: rgba(201,168,76,0.07); }
+  .prayer-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold-dim); flex-shrink: 0;
+  }
+  .prayer-info { flex: 1; min-width: 0; }
+  .prayer-name {
+    font-size: 1.05rem; color: var(--parchment);
+    line-height: 1.3;
+  }
+  .prayer-author {
+    font-style: italic; font-size: 0.8rem;
+    color: var(--gold-dim); margin-top: 2px;
+  }
+  .prayer-arrow { color: var(--gold-dim); font-size: 0.9rem; }
+
+  /* ── PRAYER DETAIL ── */
+  #detail {
+    background: var(--bg-dark);
+  }
+  .detail-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 52px 20px 14px;
+    background: linear-gradient(to bottom, #1c1508, transparent);
+    flex-shrink: 0;
+  }
+  .back-btn {
+    background: none; border: none;
+    color: var(--gold); font-size: 1.5rem;
+    cursor: pointer; padding: 4px 8px 4px 0;
+  }
+  .detail-top-title {
+    font-family: 'IM Fell English', serif;
+    font-size: 1.1rem; color: var(--gold-light);
+    flex: 1; line-height: 1.3;
+  }
+
+  .detail-scroll {
+    flex: 1; overflow-y: auto;
+    padding: 20px 24px 80px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .detail-scroll::-webkit-scrollbar { display: none; }
+
+  .prayer-heading {
+    font-family: 'IM Fell English', serif;
+    font-size: 1.7rem; color: var(--gold-light);
+    text-align: center; line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .prayer-subtitle {
+    font-style: italic; font-size: 0.95rem;
+    color: var(--crimson-light);
+    text-align: center; margin-bottom: 24px;
+  }
+  .prayer-instruction {
+    font-style: italic; font-size: 0.9rem;
+    color: var(--gold-dim); line-height: 1.6;
+    background: rgba(201,168,76,0.05);
+    border-left: 2px solid var(--gold-dim);
+    padding: 10px 14px; margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+  }
+  .prayer-body {
+    font-size: 1.12rem; line-height: 1.85;
+    color: var(--parchment);
+    text-align: justify;
+  }
+  .prayer-body p { margin-bottom: 16px; }
+  .prayer-body .highlight { color: var(--crimson-light); font-weight: 600; }
+  .prayer-body .num { color: var(--gold); font-weight: 600; }
+  .divider {
+    text-align: center; color: var(--gold-dim);
+    font-size: 1.2rem; letter-spacing: 0.5em;
+    margin: 24px 0;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex;
+    background: rgba(14,10,4,0.95);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    padding: 8px 0 28px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .bnav-btn {
+    flex: 1; background: none; border: none;
+    color: var(--gold-dim); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .bnav-btn.active { color: var(--gold-light); }
+  .bnav-btn svg { width: 22px; height: 22px; }
+
+  /* Scrollbar for desktop */
+  @media (min-width: 500px) {
+    body { max-width: 390px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ COVER ══════════════ -->
+<div id="cover" class="screen active">
+  <div class="cross-big">
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="34" y="4" width="12" height="72" fill="#c9a84c"/>
+      <rect x="10" y="24" width="60" height="12" fill="#c9a84c"/>
+      <rect x="22" y="6" width="8" height="6" fill="#c9a84c" opacity="0.5"/>
+      <rect x="50" y="6" width="8" height="6" fill="#c9a84c" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="cover-ornament">✦ ✦ ✦</div>
+  <div class="cover-title">Oraciones</div>
+  <div class="cover-subtitle">de la mañana, la noche y para varias ocasiones</div>
+  <div class="cover-quote">
+    "Hay que orar con Alegría, con energía, de todo corazón. No reces solo cuando estás obligado a ello."
+    <cite>— San Juan de Kronstadt</cite>
+  </div>
+  <button class="btn-enter" onclick="goHome()">Entrar ✦</button>
+</div>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="home" class="screen">
+  <div class="top-bar">
+    <span class="top-bar-title">✦ Oraciones</span>
+  </div>
+
+  <div class="section-tabs">
+    <button class="tab active" onclick="switchTab('manana', this)">Mañana</button>
+    <button class="tab" onclick="switchTab('noche', this)">Noche</button>
+    <button class="tab" onclick="switchTab('ocasiones', this)">Ocasiones</button>
+  </div>
+
+  <div class="home-scroll">
+
+    <!-- TAB: MAÑANA -->
+    <div class="prayer-group visible" id="group-manana">
+      <div class="day-label">Introducción</div>
+      <div class="prayer-item" onclick="showPrayer('intro-manana')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración de la Mañana</div>
+          <div class="prayer-author">Oraciones introductorias</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Lunes</div>
+      <div class="prayer-item" onclick="showPrayer('lunes-1')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Primera Oración</div>
+          <div class="prayer-author">San Macario el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('lunes-2')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Segunda Oración</div>
+          <div class="prayer-author">San Macario el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('lunes-3')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Tercera Oración</div>
+          <div class="prayer-author">San Macario el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Martes</div>
+      <div class="prayer-item" onclick="showPrayer('martes-4')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Cuarta Oración</div>
+          <div class="prayer-author">San Macario el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('martes-5')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Quinta Oración</div>
+          <div class="prayer-author">San Macario el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Miércoles</div>
+      <div class="prayer-item" onclick="showPrayer('miercoles-6')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Sexta Oración</div>
+          <div class="prayer-author">San Basilio el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Jueves</div>
+      <div class="prayer-item" onclick="showPrayer('jueves-7')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Séptima Oración</div>
+          <div class="prayer-author">San Basilio el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Viernes</div>
+      <div class="prayer-item" onclick="showPrayer('viernes-8')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Octava Oración — A Jesucristo</div>
+          <div class="prayer-author">Oración de Fe</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Sábado</div>
+      <div class="prayer-item" onclick="showPrayer('sabado-9')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Novena Oración — Al Ángel Guardián</div>
+          <div class="prayer-author">Oración al Custodio</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('sabado-10')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Décima Oración — A la Virgen María</div>
+          <div class="prayer-author">A la Santísima Theotokos</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Siempre</div>
+      <div class="prayer-item" onclick="showPrayer('suplicas')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Súplicas de Intercesión</div>
+          <div class="prayer-author">A los Santos y Ángeles</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('padres-optima')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración de los Padres de Optima</div>
+          <div class="prayer-author">Para comenzar el día</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('efren-manana')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración de San Efrén el Sirio</div>
+          <div class="prayer-author">Especialmente en Cuaresma</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+    </div>
+
+    <!-- TAB: NOCHE -->
+    <div class="prayer-group" id="group-noche">
+      <div class="day-label">Introducción</div>
+      <div class="prayer-item" onclick="showPrayer('intro-noche')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración de la Noche</div>
+          <div class="prayer-author">Oraciones introductorias</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Domingo</div>
+      <div class="prayer-item" onclick="showPrayer('domingo-noche')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración del Domingo</div>
+          <div class="prayer-author">A Cristo nuestro Dios</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Lunes</div>
+      <div class="prayer-item" onclick="showPrayer('lunes-noche')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración a Dios Padre</div>
+          <div class="prayer-author">San Macario el Grande</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('antioco-lunes')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración a Jesucristo</div>
+          <div class="prayer-author">San Antioco</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Martes</div>
+      <div class="prayer-item" onclick="showPrayer('efren-martes')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración al Espíritu Santo</div>
+          <div class="prayer-author">San Efrén el Sirio</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Miércoles</div>
+      <div class="prayer-item" onclick="showPrayer('miercoles-noche-1')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Primera Oración del Miércoles</div>
+          <div class="prayer-author">Perdón y descanso</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('miercoles-noche-2')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Segunda Oración del Miércoles</div>
+          <div class="prayer-author">Castidad y virtud</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Jueves</div>
+      <div class="prayer-item" onclick="showPrayer('crisostomo-jueves')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">24 Oraciones de Súplica</div>
+          <div class="prayer-author">San Juan Crisóstomo</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Viernes</div>
+      <div class="prayer-item" onclick="showPrayer('viernes-noche')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración a Jesucristo</div>
+          <div class="prayer-author">Por la intercesión de los Santos</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('virgen-viernes')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración a la Santísima Madre</div>
+          <div class="prayer-author">A la Virgen María</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Siempre</div>
+      <div class="prayer-item" onclick="showPrayer('angel-noche')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración al Ángel Guardián</div>
+          <div class="prayer-author">Protección nocturna</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('himnos-virgen')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Himnos a la Virgen María</div>
+          <div class="prayer-author">Theotokos</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('efren-noche')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración de San Efrén el Sirio</div>
+          <div class="prayer-author">Para la noche</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('antes-dormir')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Antes de ir a Dormir</div>
+          <div class="prayer-author">Última oración del día</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+    </div>
+
+    <!-- TAB: OCASIONES -->
+    <div class="prayer-group" id="group-ocasiones">
+      <div class="day-label">Trabajo</div>
+      <div class="prayer-item" onclick="showPrayer('antes-trabajo')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Antes de cualquier trabajo</div>
+          <div class="prayer-author">Invocación inicial</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('despues-trabajo')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Después de cualquier trabajo</div>
+          <div class="prayer-author">Acción de gracias</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Comida</div>
+      <div class="prayer-item" onclick="showPrayer('antes-comer')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Antes de comer</div>
+          <div class="prayer-author">Bendición de la mesa</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('despues-comer')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Después de comer</div>
+          <div class="prayer-author">Acción de gracias</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Necesidades especiales</div>
+      <div class="prayer-item" onclick="showPrayer('enfermos')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Por los enfermos</div>
+          <div class="prayer-author">Súplica de sanación</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('difuntos')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Por los difuntos</div>
+          <div class="prayer-author">Descanso eterno</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('arrepentimiento')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Oración de arrepentimiento</div>
+          <div class="prayer-author">Confesión del corazón</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('templo')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Al entrar en el templo</div>
+          <div class="prayer-author">Antes de la liturgia</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('icono-cristo')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Ante el Ícono de Cristo</div>
+          <div class="prayer-author">Veneración</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+
+      <div class="day-label">Salmos</div>
+      <div class="prayer-item" onclick="showPrayer('salmo50')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Salmo 50</div>
+          <div class="prayer-author">Martes, Jueves y Sábado</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('salmo69')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Salmo 69</div>
+          <div class="prayer-author">Auxilio urgente</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('salmo142')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Salmo 142</div>
+          <div class="prayer-author">En tribulación</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+      <div class="prayer-item" onclick="showPrayer('credo')">
+        <div class="prayer-dot"></div>
+        <div class="prayer-info">
+          <div class="prayer-name">Credo — Símbolo de la Fe</div>
+          <div class="prayer-author">Profesión de Fe</div>
+        </div>
+        <div class="prayer-arrow">›</div>
+      </div>
+    </div>
+
+  </div><!-- end home-scroll -->
+</div><!-- end home -->
+
+<!-- ══════════════ DETAIL ══════════════ -->
+<div id="detail" class="screen">
+  <div class="detail-top">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div class="detail-top-title" id="detail-top-title">Oración</div>
+  </div>
+  <div class="detail-scroll" id="detail-content"></div>
+</div>
+
+<script>
+// ── Navigation ──
+let currentTab = 'manana';
+
+function goHome() {
+  document.getElementById('cover').classList.remove('active');
+  document.getElementById('home').classList.add('active');
+}
+function goBack() {
+  document.getElementById('detail').classList.remove('active');
+  document.getElementById('home').classList.add('active');
+}
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.prayer-group').forEach(g => g.classList.remove('visible'));
+  document.getElementById('group-' + tab).classList.add('visible');
+  currentTab = tab;
+}
+function showPrayer(id) {
+  const p = prayers[id];
+  if (!p) return;
+  document.getElementById('detail-top-title').textContent = p.short || p.title;
+  document.getElementById('detail-content').innerHTML = renderPrayer(p);
+  document.getElementById('detail-content').scrollTop = 0;
+  document.getElementById('home').classList.remove('active');
+  document.getElementById('detail').classList.add('active');
+}
+
+function renderPrayer(p) {
+  let html = '';
+  html += `<div class="prayer-heading">${p.title}</div>`;
+  if (p.subtitle) html += `<div class="prayer-subtitle">${p.subtitle}</div>`;
+  if (p.instruction) html += `<div class="prayer-instruction">${p.instruction}</div>`;
+  html += `<div class="prayer-body">${p.body}</div>`;
+  return html;
+}
+
+// ── Prayers Database ──
+const prayers = {
+
+'intro-manana': {
+  title: 'Oración de la Mañana',
+  subtitle: 'Oraciones introductorias',
+  instruction: 'Habiendo ya despertado, levántate de tu cama, sin pereza y con fe colócate en frente de tus iconos, respira unas cuantas veces, deja de lado tus tareas terrenales y concéntrate en Cristo. Haz la señal de la Cruz y comienza.',
+  body: `<p><span class="highlight">En el nombre del Padre, del Hijo y del Espíritu Santo. Amén.</span></p>
+<p>¡Gloria a Ti, Oh Dios Nuestro, gloria a Ti!</p>
+<p>Oh, Rey Celestial, Paráclito, Espíritu de la Verdad, que estás en todas partes y llenas todas las cosas, Tesoro de todo lo bueno, y Dispensador en la Vida, ven y mora en nosotros, purifícanos de toda mancha y salva nuestras almas, Oh Bondadoso.</p>
+<p>Santo Dios, Santo Poderoso, Santo Inmortal, ten piedad de nosotros. <span class="highlight">(3 veces)</span></p>
+<p>Gloria al Padre, al Hijo, y al Espíritu Santo, ahora y siempre y en los siglos de los siglos. Amén.</p>
+<p>Oh, Santísima Trinidad, ten piedad de nosotros. Oh, Señor, perdona nuestros pecados. Oh, Soberano, absuelve nuestras transgresiones; Oh, Santísimo, mira y sana nuestras dolencias por la Gloria de Tu Nombre.</p>
+<p>Señor, ten piedad. <span class="highlight">(3 veces)</span></p>
+<p>Gloria al Padre, al Hijo y al Espíritu Santo, ahora y siempre y en los siglos de los siglos. Amén.</p>
+<p>Padre nuestro que estás en los cielos, santificado sea tu nombre, venga tu reino, hágase tu voluntad así en la tierra como en el cielo. El pan sustancial nuestro dánoslo hoy y perdona nuestras deudas como nosotros perdonamos a nuestros deudores; no nos dejes caer en tentación, mas líbranos del maligno.</p>
+<div class="divider">✦</div>
+<p><span class="highlight">Troparios a la Santísima Trinidad</span></p>
+<p>Al levantarnos del sueño acudimos a Ti, Oh Bondadoso y Te entonamos Oh Poderoso el himno angelical: <em>¡Santo, Santo, Santo eres Tú, Oh Dios, por las oraciones de tu Santa Madre, ten piedad de nosotros!</em></p>
+<p>Gloria al Padre, al Hijo y al Espíritu Santo.</p>
+<p>Del lecho y del sueño me levantaste, Señor, ilumina mi mente y mi corazón y abre mis labios para que Te alabe, Trinidad Santa, diciéndote: <em>¡Santo, Santo, Santo eres Tú, Oh Dios por las oraciones de tu Santa Madre, ten piedad de nosotros!</em></p>
+<p>Ahora y siempre y por los siglos de los siglos. Amén.</p>
+<p>El Juez supremo vendrá de improviso y las obras de cada uno serán descubiertas, por eso en medio de la noche Te invocamos con temor. <em>¡Santo, Santo, Santo eres Tú, Oh Dios, por las oraciones de tu Santa Madre ten piedad de nosotros!</em></p>
+<p>Señor ten piedad. <span class="highlight">(12 veces)</span></p>
+<div class="divider">✦</div>
+<p><span class="highlight">Oración a la Santísima Trinidad</span></p>
+<p>Al levantarme del sueño Te doy gracias, Oh Santísima Trinidad, por tu gran bondad e infinita misericordia, ya que no has mostrado ira contra mí, pecador e indolente. Tampoco me has hecho perecer con mis iniquidades, sino que usando de Tu habitual misericordia y amor por la humanidad, me hayas levantado a mí que yacía desesperado, para que al amanecer pueda cantar himnos que glorifican tu grandeza. Y ahora Señor, ilumina mi mente, mi corazón, y abre mis labios para instruirme con tus Palabras, comprender tus Mandamientos, hacer tu Voluntad, cantarte y confesarte con todo mi corazón y glorificar tu Santísimo Nombre del Padre, Hijo, y Espíritu Santo, ahora y siempre y por los siglos de los siglos. Amén.</p>`
+},
+
+'lunes-1': {
+  title: 'Primera Oración',
+  subtitle: 'San Macario el Grande — Lunes',
+  body: `<p>¡Oh Dios!, purifícame a mi pecador porque nunca he hecho nada bueno ante ti; líbrame del maligno, y que Tú voluntad se cumpla en mí, para que yo pueda abrir mis labios indignos sin condenación, y alabar Tu Santo Nombre de Padre, Hijo y Espíritu Santo, ahora y siempre y por los siglos de los siglos. Amén.</p>`
+},
+
+'lunes-2': {
+  title: 'Segunda Oración',
+  subtitle: 'San Macario el Grande — Lunes',
+  body: `<p>Al despertar de mi sueño, Te ofrezco, Oh Salvador, himnos de alabanza y postrándome te ruego: concédeme no dormirme en la muerte del pecado, si no que apiádate de mí, Oh Tú que fuiste voluntariamente crucificado, Te ruego apresúrate a levantarme que estoy postrado en la indolencia de mis pecados, y abatido por la pereza, y sálvame por la oración e intercesión, y después del sueño de la noche, haz que brille para mí la luz de un día sin pecado y sálvame Oh Cristo, Dios.</p>`
+},
+
+'lunes-3': {
+  title: 'Tercera Oración',
+  subtitle: 'San Macario el Grande — Lunes',
+  body: `<p>Al despertarme del sueño me apresuro a Ti, Oh Soberano, Amante de la humanidad, y por Tu bondad me esfuerzo por cumplir Tus obra, y Te suplico con mi oración que me ayudes siempre en todas cosas, y me libres de toda maldad, de todo lo malo del mundo, de todos los ataques del maligno. Sálvame y llévame a Tu Reino eterno. Porque Tú eres mi Creador, Proveedor de todo lo bueno, y toda mi esperanza está en Ti, y te rindo gloria, ahora y siempre y por los siglos de los siglos. Amén.</p>`
+},
+
+'martes-4': {
+  title: 'Cuarta Oración',
+  subtitle: 'San Macario el Grande — Martes',
+  body: `<p>Oh Señor, que en tu abundante bondad e infinita misericordia, me has concedido pasar la noche sin caer en la tentación. Soberano y Creador de todo, concédeme hacer tu voluntad por tu verdadera Luz y con el corazón iluminado, ahora y siempre, y por los siglos de siglos. Amén.</p>`
+},
+
+'martes-5': {
+  title: 'Quinta Oración',
+  subtitle: 'San Macario el Grande — Martes',
+  body: `<p>Dios Señor Todopoderoso, que recibes de tus poderes celestiales el himno tres veces santo, recibe también de mí, tu indigno siervo, este cantico de la noche, y concédeme cada año de mi vida y a cada hora de glorificarte Ti, Padre, Hijo y Espíritu Santo, ahora y siempre y por los siglos de los siglos. Amén.</p>`
+},
+
+'miercoles-6': {
+  title: 'Sexta Oración',
+  subtitle: 'San Basilio el Grande — Miércoles',
+  body: `<p>Señor todopoderoso, Dios de las potestades y de toda carne, que moras en las alturas y cuidas de los humildes, que miras los corazones y los cuerpos, que claramente prevés los secretos de los hombres, Luz sin principio y eterna, inmutable e inmutada, Rey inmortal, acepta nuestras oraciones que ahora te ofrecemos con labios sucios, confiando en tu inmensa misericordia. Perdónanos todos nuestros pecados cometidos en pensamiento, palabra y obra, consciente o inconscientemente, y límpianos de toda mancha de la carne y del espíritu.</p>
+<p>Concédenos pasar la noche de esta presente vida con un corazón atento y con sobriedad de pensamiento. Siempre esperando la segunda llegada resplandeciente de tu Hijo Unigénito, nuestro Señor Dios y Salvador, Jesucristo, en el que ha de venir con gloria como Juez a recompensar a todos los hombres según sus obras; que no nos encuentre caídos en la indolencia, sino despiertos y vigilantes, listos para acompañarlo al regocijo y al Reino divino de su gloria, donde jamás cesa la voz de los que festejan y el gozo inefable de los que contemplan la inexpresable belleza de tu rostro.</p>
+<p>Porque tú eres la verdadera luz que ilumina y santifica todas las cosas, y el universo entera te alaba por todos los siglos. Amén.</p>`
+},
+
+'jueves-7': {
+  title: 'Séptima Oración',
+  subtitle: 'San Basilio el Grande — Jueves',
+  body: `<p>Te bendecimos, oh Altísimo Dios y Señor de la misericordia. Que estás siempre realizando innumerables, grandes e inescrutables cosas con nosotros, gloriosas y maravillosas. Que nos permites dormir para tregua de nuestras debilidades y reposo de los agobios de nuestra fatigadísima carne. Te agradecemos que Tú no nos hayas destruido por nuestros pecados y por el contrario nos hayas amado como siempre y aunque estemos sumidos en la desesperación, Tú nos has levantado para alabar tu poder.</p>
+<p>En consecuencia, imploramos que en Tu incomparable bondad nos ilumines los ojos de nuestra comprensión y eleve nuestra mente del pesado sueño de la indolencia; abra nuestra boca y la colme con Tu alabanza, para que seamos capaces sin distraernos de cantarte y confesarnos a Ti, que eres Dios glorificado en todo y por todos, el Padre eterno, con Tu único engendrado Hijo, y Tú absolutamente santificado y bueno y vivificante Espíritu, ahora y siempre y por los siglos de los siglos. Amén.</p>`
+},
+
+'viernes-8': {
+  title: 'Octava Oración — Viernes',
+  subtitle: 'A Nuestro Señor Jesucristo',
+  body: `<p>Oh Mi Dios infinitamente generoso y misericordioso, Señor Jesucristo, que por causa de tu gran amor descendiste, y te encarnaste para salvarnos a todos. Te ruego nuevamente, ¡Oh Salvador!, ¡Sálvame conforme a Tu gracia, Te lo ruego!, pues si Tú me salvaras por mis obras, esto no sería gracia ni don, sino más bien un deber. Sin duda, en Tu infinita compasión e infinita misericordia, Tú, Oh mi Cristo has dicho: quienquiera que crea en Mí vivirá y nunca morirá.</p>
+<p>Si la fe en Ti salva a los desesperados, tu que eres Mi Dios, Mi Creador y Mi Salvador ¡Sálvame! Toma en cuenta mi fe en vez de a mis actos. ¡Oh mi Dios! Porque Tú no encontrarás actos que pudieran justificarme, pero que esa fe mia sea suficiente para que me justifique. Para que baste y se me absuelva, y me haga participe de Tu gloria eterna, y que me alejes de las garras del maligno.</p>
+<p>¡Oh Cristo, mi Salvador! quiéralo yo o no, ¡Sálvame! ¡Apresúrate!, rápido, rápido, pues estoy pereciendo. Tú eres mi Dios desde el vientre de mi madre. Concédeme, Cristo que Te ame ahora mismo, al igual que como alguna vez amé el pecado, y también que trabaje para Ti sin pereza, como trabajé antes para el Maligno. Pero primordialmente trabajaré para Ti, mi Señor y Dios, Jesucristo, todos los días de mi vida, ahora y siempre, y por los siglos de los siglos. Amén.</p>`
+},
+
+'sabado-9': {
+  title: 'Novena Oración — Sábado',
+  subtitle: 'A nuestro Santo Ángel Guardián',
+  body: `<p>Oh Ángel Santo, intercede por mi alma desdichada y mi vida apasionada, no me abandones, ni te distancies de mí por mi intemperancia. No des lugar a que el demonio engañoso me domine a causa de la violencia de mi cuerpo mortal. Fortalece mi pobre y débil voluntad y guíame por el camino de la salvación.</p>
+<p>Oh Ángel Santo de Dios, guardián y protector de mi cuerpo y de alma desdichada, perdóname todas las aflicciones que Te he haya causado durante todos los días de mi vida, y por todos los pecados que pueda haber cometido durante la pasada noche. Te pido que me Protejas durante el presente día, y ampárame, presérvame y dame tu auxilio frente a de toda tentación del enemigo, para que no molestar a Dios por ningún pecado.</p>
+<p>Y ruega al Señor por mí, para que Él pueda fortalecerme en Su temor, y hacerme, Su siervo y servidor, digno de Su bondad. Amén.</p>`
+},
+
+'sabado-10': {
+  title: 'Décima Oración — Sábado',
+  subtitle: 'A la Santísima Virgen María',
+  body: `<p>Oh Santísima Theotokos, Madre de Dios, a través de tus oraciones santas y poderosas, aleja de mí, tu humilde e indigno siervo, la desesperación, la distracción, irracionalidad, la indiferencia, y de todos los pensamientos impuros, malignos e impíos que pudieran salir de mi corazón desdichado y mi mente obscurecida.</p>
+<p>Apaga el ardor de mis pasiones, porque soy miserable y desdichado. Líbrame de mis numerosos y lamentables recuerdos y de toda ilusión. Libérame de todos los malos actos, porque todas las generaciones glorifican y bendicen tu Santo y honorabilísimo Nombre. Por los siglos de los siglos. Amén.</p>
+<div class="divider">✦</div>
+<p>Alégrate, oh Virgen Theotokos, María llena de gracia, el Señor está contigo. Bendita eres entre todas las mujeres, y bendito es el fruto de tu vientre, porque has llevado al Salvador de nuestras almas.</p>`
+},
+
+'suplicas': {
+  title: 'Súplicas de Intercesión',
+  body: `<p>Oh huestes celestiales de santos ángeles y arcángeles, rueguen por nosotros pecadores.</p>
+<p>Oh gloriosos apóstoles, profetas, mártires y todos los santos, rueguen por nosotros pecadores.</p>
+<div class="divider">✦</div>
+<p><em>Se puede decir aquí el tropario de su parroquia, o cualquier otro himno que estás acostumbrado a agregar.</em></p>
+<div class="divider">✦</div>
+<p>Ruega a Dios por mí, oh san N. (tu santo patrón), porque yo vuelva a Él, que eres el veloz ayudante e intercesor para mi alma.</p>
+<div class="divider">✦</div>
+<p><span class="highlight">Oración al Ángel Guardián personal</span></p>
+<p>Oh ángel de Cristo, santo guardián y protector de mi alma y cuerpo, perdóname de todo lo que te he ofendido cada día de mi vida, y protégeme de toda influencia y tentación del maligno. Pueda yo nunca más enojar a Dios por ningún pecado. Ora por mi al Señor para que me haga digno de la gracia de la Santísima Trinidad, y de la Santísima Theotokos, y de todos los Santos. Amén.</p>`
+},
+
+'padres-optima': {
+  title: 'Oración de los Padres de Optima',
+  subtitle: 'Para comenzar el día',
+  body: `<p>Señor, concédeme recibir con tranquilidad espiritual todo lo que me traerá el día que comienza.</p>
+<p>Concédeme que yo pueda entregarme íntegramente a tu santa voluntad. En cada hora de éste día, instrúyeme y apóyame en todo.</p>
+<p>Cualquier noticia que reciba en el transcurso del día enséñame aceptarla serenamente y con firme convicción de que todo es tu santa voluntad. En todas mis palabras y actos dirige mis pensamientos y sentimientos.</p>
+<p>En los sucesos imprevistos no permitas que olvide que todo ha sido enviado por Ti. Enséñame a actuar con rectitud y juiciosamente con cada miembro de mi familia, sin perturbar ni afligir a nadie.</p>
+<p>Señor, dame fuerzas para sobrellevar el cansancio de éste día y de todos los acontecimientos que en él se produzcan.</p>
+<p>Dirige mi voluntad y enséñame a rezar, a creer, tener esperanza y paciencia, a perdonar y a amar. Amén.</p>`
+},
+
+'efren-manana': {
+  title: 'Oración de San Efrén el Sirio',
+  subtitle: 'Especialmente en la Gran Cuaresma',
+  body: `<p>Señor y Soberano de mi vida, líbrame del espíritu de indolencia, desaliento, vanagloria y palabra inútil. <em>(postración)</em></p>
+<p>Y concédeme a mí, tu siervo pecador el espíritu de castidad, humildad, paciencia y amor. <em>(postración)</em></p>
+<p>Si, Rey mío y Dios mío, concédeme de conocer mis faltas y no juzgar a mis hermanos. Porque eres bendito por siempre. Amén. <em>(postración)</em></p>`
+},
+
+'intro-noche': {
+  title: 'Oración de la Noche',
+  subtitle: 'Oraciones introductorias',
+  instruction: 'Enciende una vela y en silencio venera los íconos. Quédate en silencio por unos momentos hasta que todos tus sentidos se calmen. Luego haz tres postraciones, diciendo: "Señor Jesucristo, Hijo de Dios, apiádate de mí, que soy pecador." Ahora haz la señal de la Cruz.',
+  body: `<p>En el Nombre del Padre y del Hijo y del Espíritu Santo. Amén.</p>
+<p>Gloria a Ti Nuestro Dios, gloria a ti.</p>
+<p>Oh Rey Celestial, Paráclito, Espíritu de la Verdad, que estás en todas partes y todo lo llenas. Tesoro de todo lo bueno y dador de la vida; ven y mora en nosotros, purifícanos de toda mancha y salva nuestras almas, oh Bondadoso.</p>
+<p>Santo Dios, Santo Poderoso, Santo Inmortal ten piedad de nosotros. <span class="highlight">(3 veces)</span></p>
+<p>Gloria al Padre al Hijo y al Espíritu Santo ahora y siempre y por los siglos de los siglos. Amén.</p>
+<p>Oh Santísima Trinidad, ten piedad de nosotros. Oh Señor, perdona nuestros pecados. Oh Soberano, absuelve nuestras transgresiones. Oh Santo, mira y sana nuestras dolencias, por tu nombre.</p>
+<p>Señor ten piedad. <span class="highlight">(3 veces)</span></p>
+<p>Gloria al Padre, al Hijo y al Espíritu Santo, ahora y siempre y por los siglos de los siglos. Amén.</p>
+<p>Padre nuestro que estás en los cielos, santificado sea tu nombre, venga tu reino, hágase tu voluntad así en la tierra como en el cielo. El pan sustancial nuestro dánoslo hoy y perdona nuestras deudas como nosotros perdonamos a nuestros deudores; no nos dejes caer en tentación, mas líbranos del maligno.</p>
+<div class="divider">✦</div>
+<p><span class="highlight">Troparios</span></p>
+<p>Habiendo llegado al final del día, oh Señor, te doy gracias y te suplico consérvame sin pecado en la tarde y en la noche: Concédemelo, Oh Salvador y sálvame.</p>
+<p>Gloria al Padre, al Hijo y al Espíritu Santo.</p>
+<p>Habiendo llegado al ocaso del día te glorifico oh Soberano y te suplico guardarme en la tarde y en la noche: Concédemelo, Oh Salvador y sálvame.</p>
+<p>Ahora y siempre y por los siglos de los siglos. Amén.</p>
+<p>Habiendo llegado al final del día, te alabo, Oh Santo y te suplico librarme de todo tropiezo en la tarde y en la noche: Concédemelo, Oh Salvador y sálvame.</p>
+<p>Señor ten piedad. <span class="highlight">(12 veces)</span></p>`
+},
+
+'domingo-noche': {
+  title: 'Oración del Domingo',
+  subtitle: 'A Cristo nuestro Dios',
+  body: `<p>Oh Cristo nuestro Dios, quien en todo momento y en cada hora en el cielo y en la tierra, eres adorado y glorificado; muy paciente, misericordioso y compasivo; quien amas a los justos y muestras misericordia a los pecadores; quien llamas a todos a la salvación a través de la promesa de bendiciones venideras; Oh Señor en esta hora recibe nuestras súplicas y dirige nuestras vidas acorde a Tus mandamientos.</p>
+<p>Santifica nuestras almas, bendice nuestros cuerpos, corrige nuestros pensamientos, limpia nuestras mentes; líbranos de toda tribulación, maldad y angustia. Abrázanos con tus santos ángeles, que guiados y custodiados por ellos, podamos alcanzar la unidad de la fe y el conocimiento de tu gloria inaccesible, porque tú eres bendito por los siglos de los siglos. Amén.</p>`
+},
+
+'lunes-noche': {
+  title: 'Oración a Dios Padre',
+  subtitle: 'San Macario el Grande — Lunes',
+  body: `<p>Qué Te ofreceré, o que Te daré, oh Rey Inmortal lleno de grandes dones, clemente y amante de la humanidad, siendo perezoso en complacerte no he hecho nada bueno por Ti. Me dejaste llegar hasta el fin de este día preocupándote de mi conversión y de la salvación de mi alma. Sé benevolente conmigo, soy un pecador exento de toda obra buena, levanta mi alma caída y manchada de inconmensurables pecados, quítame todo pensamiento malvado en esta vida.</p>
+<p>Perdona mis pecados, oh Único exento de pecado, en lo que he pecado en este día con todos mis sentidos, con tu divino Poder ampárame de todo acoso del adversario; y con tu fuerza e inefable amor a la humanidad limpia, oh Dios la multitud de mis pecados. Ten la bondad de liberarme de las redes del maligno, y salva mi alma apasionada e ilumíname con la luz de tu Rostro, cuando vengas en gloria.</p>
+<p>Déjame dormir sin condenación, sin ensueño, y has que la mente de tu siervo no tenga perturbaciones y aleja de mí toda acción satánica, alumbra los ojos de mi corazón, para no dormirme en la muerte. Envíame un ángel de paz, guardián y guía de mi alma y cuerpo para que él pueda salvarme de mis adversarios, elévame de mi lecho, te ofrezco plegarias de agradecimientos, sí, oh Señor, óyeme a mí pecador con la conciencia afligida.</p>
+<p>Levántame para aprender tus Palabras, aleja de mí toda aflicción satánica por tus santos ángeles, para que pueda bendecir tu Santo Nombre y glorificar a tu Purísima Deípara María, el amparo de los pecadores. Por tu intercesión y por la señal de la honorable Cruz, conserva mi alma menesterosa, Jesucristo nuestro Dios, porque eres Santo y glorificado en los siglos de los siglos. Amén.</p>`
+},
+
+'antioco-lunes': {
+  title: 'Oración a Nuestro Señor Jesucristo',
+  subtitle: 'San Antioco — Lunes',
+  body: `<p>Omnipotente, Verbo del Padre, perfecto por excelencia, Jesucristo, Tú, que por tu misericordia infinita, nunca abandonarás a tu servidor, sino que reposas siempre en él, Jesús Buen Pastor de tus ovejas, no me entregues a los ardides de la serpiente seductora, ni me dejes a merced de Satanás, porque el germen de corrupción está en mí.</p>
+<p>Por lo tanto, Señor Dios, ante quien nos prosternamos, Jesucristo, Rey Santo, consérvame durante mi sueño por tu luz inextinguible, por tu Santo Espíritu, con el cual santificaste a tus discípulos. Oh Señor, concede a tu indigno servidor, tu salvación en mi lecho. Ilumina mi mente con la luz de comprensión de tu Santo Evangelio, mi alma con el amor de tu Cruz, mi corazón con la pureza de tu Palabra, mi cuerpo con tu Pasión impasionada.</p>
+<p>Preserva mi pensamiento con tu humildad y estimúlame oportunamente para glorificarte, pues Tú eres supremamente alabado con Tu Padre co-eterno y el Santísimo Espíritu por siempre. Amén.</p>`
+},
+
+'efren-martes': {
+  title: 'Oración al Espíritu Santo',
+  subtitle: 'San Efrén el Sirio — Martes',
+  body: `<p>Señor Rey de los cielos, Consolador, Espíritu de Verdad, ten misericordia y piedad de mí tu servidor pecador e indigno y absuelve todos los pecados que humanamente cometí hoy, y no sólo como hombre, incluso peor que una bestia, mis pecados voluntarios e involuntarios cometidos en conciencia o ignorancia, los de mi juventud y por falsas sugerencias, aquellos que son frutos de la temeridad o de la aflicción. Si he jurado por tu Nombre, o lo he vilipendiado en mi pensamiento, o he reprochado a alguien, o en mi ira he injuriado o calumniado.</p>
+<p>Si a alguien he entristecido, o si me he enojado por nada, si he mentido, si he dormido innecesariamente, si un mendigo ha acudido a mí y lo he despreciado, si causo pena a mi hermano o discutido con él, o si he juzgado a alguno, si me he envanecido, o enorgullecido, o si la ira me dominó o si durante la oración mi mente se ha distraído por la fascinación de este mundo, si mi imaginación se ha complacido en pensamientos impuros, si me entregué a la gula o a la embriaguez, o si he reído en exceso, o he pensado mal, si he codiciado lo ajeno, o he pronunciado palabras ilícitas, o me he burlado de las faltas de mi prójimo, o he descuidado la oración.</p>
+<p>Todo esto y mucho más, Te confieso hacedor mío Soberano, apiádate de mi, tu afligido e indigno servidor, redímeme, absuélveme y perdóname en tu bondad y amor a los hombres, a fin de que pueda acostarme y gozar de un sueño tranquilo y venerar, alabar y glorificar tu Honorabilísimo Nombre, con el Padre y Su Hijo Unigénito, ahora y siempre y en los siglos de los siglos. Amén.</p>`
+},
+
+'miercoles-noche-1': {
+  title: 'Primera Oración del Miércoles',
+  subtitle: 'Perdón y descanso',
+  body: `<p>Oh Señor, Dios nuestro, en Tu bondad y amor a la humanidad, perdóname todos los pecados que he cometido hoy de palabra, acción y pensamiento. Concédeme un sueño apacible y sereno. Envíame Tu Angel Guardián para protegerme y defenderme de todo mal. Porque Tú eres el salvaguardia de nuestras almas y cuerpos, y a Ti Te rendimos gloria, al Padre, al Hijo y al Espíritu Santo, ahora y siempre, y en los siglos de los siglos. Amén.</p>`
+},
+
+'miercoles-noche-2': {
+  title: 'Segunda Oración del Miércoles',
+  subtitle: 'Castidad y virtud',
+  body: `<p>Oh Señor, Dios nuestro, en Quien creemos y cuyo Nombre invocamos por encima de todo nombre, concédenos preparándonos para el descanso del alma y el cuerpo, y guárdanos de todas las tentaciones y ocultos placeres. Detén la rebelión de las pasiones y apaga el ardiente cuerpo. Concédenos vivir castamente de palabra, para que adquiriendo una vida virtuosa y heroica, no desertar de tus prometidas bendiciones. Ya que Tú eres Bendito para siempre. Amén.</p>`
+},
+
+'crisostomo-jueves': {
+  title: '24 Oraciones de Súplica',
+  subtitle: 'San Juan Crisóstomo — Jueves',
+  body: `<p><span class="num">1.</span> Señor, no me prives de tus bienes celestiales.</p>
+<p><span class="num">2.</span> Señor líbrame de los tormentos eternos.</p>
+<p><span class="num">3.</span> Señor, si he pecado de intención o pensamiento, de palabra o acción, perdóname.</p>
+<p><span class="num">4.</span> Señor, redímeme de toda ignorancia, olvido, cobardía y despiadada insensibilidad.</p>
+<p><span class="num">5.</span> Señor, rescátame de toda tentación.</p>
+<p><span class="num">6.</span> Señor, ilumina mi corazón oscurecido por la concupiscencia.</p>
+<p><span class="num">7.</span> Señor, siendo humano he pecado, pero Tú siendo el Dios generoso, ten piedad de mí, conociendo la enfermedad de mi alma.</p>
+<p><span class="num">8.</span> Señor, transmite tu gracia en mi ayuda, para que yo pueda alabar tu Santo Nombre.</p>
+<p><span class="num">9.</span> Señor Jesucristo, inscribe a tu siervo en el Libro de la Vida, y concédeme un buen fin.</p>
+<p><span class="num">10.</span> Oh Señor mi Dios, aun cuando no he hecho nada bueno a tu vista, sin embargo concédeme tu Gracia para hacer un buen comienzo.</p>
+<p><span class="num">11.</span> Señor, esparce en mi corazón el rocío de tu Gracia.</p>
+<p><span class="num">12.</span> Señor del cielo y de la tierra, recuérda a tu pecaminoso servidor, ignominioso e impuro, en tu Reino. Amén.</p>
+<p><span class="num">13.</span> Señor, recíbeme en mi arrepentimiento.</p>
+<p><span class="num">14.</span> Señor no me desampares.</p>
+<p><span class="num">15.</span> Señor apártame de la tentación.</p>
+<p><span class="num">16.</span> Señor concédeme buenos pensamientos.</p>
+<p><span class="num">17.</span> Oh Señor, dame lágrimas y recuerdo de la muerte y contrición.</p>
+<p><span class="num">18.</span> Señor, dame el deseo de confesar mis pecados.</p>
+<p><span class="num">19.</span> Señor dame la humildad, la castidad y la obediencia.</p>
+<p><span class="num">20.</span> Señor, dame la paciencia, la magnanimidad y mansedumbre.</p>
+<p><span class="num">21.</span> Señor, introduce la raíz de todo bien en mi corazón, que es el temor ante Ti.</p>
+<p><span class="num">22.</span> Oh Señor, hazme capaz de amarte con toda mi alma, mi entendimiento y de cumplir en todo tu voluntad.</p>
+<p><span class="num">23.</span> Señor, protégeme de cierta gente, demonios, pasiones y de toda cosa perniciosa.</p>
+<p><span class="num">24.</span> Oh Señor, Tú sabes que Tú actúas como Tú quieres, que tu voluntad reine en mí, pecador, pues Bendito eres Tú por siempre. Amén.</p>`
+},
+
+'viernes-noche': {
+  title: 'Oración a Nuestro Señor Jesucristo',
+  subtitle: 'Viernes',
+  body: `<p>Oh Señor Jesucristo, Hijo de Dios, por merced a tu Honorabilísima Madre, tus Angeles, a tu Profeta, Precursor y Bautista, los Apóstoles inspirados de Dios, los radiantes y victoriosos mártires, los venerables y teóforos Padres y por las oraciones de todos los Santos, líbrame del constante acoso del demonio, mi Señor y Hacedor, que no deseas la muerte del pecador, sino que se convierta y viva, otórgame también la conversión a mí, réprobo e indigno como soy.</p>
+<p>Arrebátame de las fauces de la perniciosa serpiente, que procura devorarme y arrastrarme vivo al Hades. Mi Señor y mi Consuelo, que te encarnaste por mí, miserable, redímeme de la miseria, y concede el consuelo a mi alma desventurada. Implanta en mi corazón el deseo de cumplir tus preceptos y que pueda abandonar mis malignas acciones, para poder recibir tus Bienaventuranzas. Sálvame, pues en Ti, Señor, pongo mis esperanzas.</p>`
+},
+
+'virgen-viernes': {
+  title: 'Oración a la Santísima Madre de Dios',
+  subtitle: 'Viernes',
+  body: `<p>Oh Madre Benigna del buen Rey, Purísima y siempre Bendita Deípara María, derrama en mi alma apasionada la gracia de tu Hijo y nuestro Dios y guíame por tus oraciones en el cumplimiento de las buenas obras, a fin de que pase sin pecado el curso de mi vida y obtenga el Paraíso, por tu intercesión. Virgen Deípara, Única, Purísima y Bendita.</p>`
+},
+
+'angel-noche': {
+  title: 'Oración al Ángel Guardián',
+  subtitle: 'Protección nocturna',
+  body: `<p>Oh Angel de Cristo, Santo Guardián y Protector de mi alma y de mi cuerpo, perdóname todos mis pecados de hoy. Líbrame de todos los ardides del enemigo, para que no encolerice a mi Dios con ningún pecado. Ruega por mí, pecador e indigno servidor, para presentarme digno de la bondad y misericordia de la Santísima Trinidad, de la Madre de mi Señor Jesucristo, y de todos los Santos. Amén.</p>`
+},
+
+'himnos-virgen': {
+  title: 'Himnos a la Virgen María',
+  subtitle: 'Theotokos',
+  body: `<p>A ti María, te cantamos madre victoriosa. Tu pueblo ofrece alabanzas de agradecimiento. De las pruebas, Theotokos, nos has salvado pues tú tienes invencible y excelsa fuerza. De peligros, Theotokos, libéranos, pues clamamos a ti: Salve, Novia Madre siempre Virgen.</p>
+<div class="divider">✦</div>
+<p>Muy loable, Siempre-Virgen, bendita Madre de Cristo Dios, ofrece nuestras plegarias al Hijo y nuestro Dios, rogándole para que salve por tu mediación, nuestras almas.</p>
+<div class="divider">✦</div>
+<p>En Tí deposito toda mi esperanza, oh Madre de Dios. Guardame bajo tu amparo.</p>
+<div class="divider">✦</div>
+<p>Oh Virgen Deípara no me rechaces a mí, pecador, exigiendo tu auxilio y protección, pues mi alma ha puesto en Ti su confianza y apiádate de mí.</p>`
+},
+
+'efren-noche': {
+  title: 'Oración de San Efrén el Sirio',
+  subtitle: 'Para la noche',
+  body: `<p>Señor y Soberano de mi vida, líbrame del espíritu de indolencia, desaliento, vanagloria y palabra inútil. <em>(postración)</em></p>
+<p>Y concédeme a mí, tu siervo pecador el espíritu de castidad, humildad, paciencia y amor. <em>(postración)</em></p>
+<p>Si, Rey mío y Dios mío, concédeme de conocer mis faltas y no juzgar a mis hermanos. Porque eres bendito por siempre. Amén. <em>(postración)</em></p>
+<p>Oh Dios, purifícame a mi pecador. <span class="highlight">12 metanias.</span></p>
+<p><em>Luego la oración de San Efrén una vez más completa sin postraciones. Y una postración al final.</em></p>`
+},
+
+'antes-dormir': {
+  title: 'Antes de ir a Dormir',
+  subtitle: 'Última oración del día',
+  instruction: 'Besa tu cruz e ícono, haz la señal de la Cruz sobre tu cama, de pies a cabeza y de lado a lado.',
+  body: `<p>Guárdame, Señor, por el poder de tu santa y vivificadora Cruz, y mantenme alejado de todo mal.</p>
+<div class="divider">✦</div>
+<p><em>Justo antes de ceder el sueño, di:</em></p>
+<p>En tus manos, oh Señor, encomiendo mi alma y mi cuerpo. Bendíceme y apiádate de mí, y concédeme la vida eterna. Amén.</p>`
+},
+
+'antes-trabajo': {
+  title: 'Antes de cualquier trabajo',
+  body: `<p>Oh Señor Jesucristo, el Hijo unigénito de Dios, has dicho: "Sin mí no puedes hacer nada". Con fe abrazo tus palabras, oh Señor, y me inclino ante tu bondad. Ayúdame a completar el trabajo que estoy por comenzar para Tu propia gloria: en el Nombre del Padre, y del Hijo, y del Espíritu Santo. Amén.</p>`
+},
+
+'despues-trabajo': {
+  title: 'Después de cualquier trabajo',
+  body: `<p>¡Tú, oh Cristo, eres el cumplimiento de todas las cosas buenas! Llena mi alma de alegría y sálvame, porque eres todo misericordioso.</p>`
+},
+
+'antes-comer': {
+  title: 'Antes de comer',
+  subtitle: 'Bendición de la mesa',
+  body: `<p>En el nombre del Padre, y del Hijo, y del Espíritu Santo. Amén.</p>
+<p>Padre nuestro que estás en los cielos, santificado sea tu nombre, venga tu reino, hágase tu voluntad así en la tierra como en el cielo. El pan sustancial nuestro dánoslo hoy y perdona nuestras deudas como nosotros perdonamos a nuestros deudores; no nos dejes caer en tentación, mas líbranos del maligno.</p>
+<p>Gloria al Padre, y al Hijo, y al Espíritu Santo, ahora y siempre, y por siglos de siglos. Amén.</p>
+<p>Señor ten piedad. <span class="highlight">(3 veces)</span></p>
+<p>Oh Cristo, nuestro Dios, bendice la comida, la bebida y la comunión de tus siervos, porque eres santo siempre, ahora y siempre, y por siglos de siglos. Amén.</p>`
+},
+
+'despues-comer': {
+  title: 'Después de comer',
+  subtitle: 'Acción de gracias',
+  body: `<p>Te damos gracias, oh Cristo nuestro Dios, que nos has satisfecho con tus bendiciones terrenales; no nos prives también de tu reino celestial. Como viniste a tus discípulos y les concediste paz; ven a nosotros y sálvanos, oh Salvador.</p>
+<p>Gloria al Padre, y al Hijo, y al Espíritu Santo, ahora y siempre, y por siglos de siglos. Amén.</p>
+<p>Señor ten piedad. <span class="highlight">(3 veces)</span></p>
+<p>Bendito sea Dios, que nos ha alimentado con sus abundantes dones por su gracia y compasión siempre, ahora y siempre y hasta siglos de siglos. Amén.</p>`
+},
+
+'enfermos': {
+  title: 'Oración por los enfermos',
+  body: `<p>Oh Santo Padre, Médico celestial de nuestras almas y cuerpos, que ha enviado a tu Hijo unigénito, nuestro Señor Jesucristo, para sanar todas nuestras dolencias y librarnos de la muerte: visita y cura a tu siervo <em>(Nombre de la persona)</em>, otorgándole la liberación desde el dolor y la restauración hasta la salud y el vigor, para que él / ella pueda darte gracias y bendecir tu Santo Nombre, del Padre, y del Hijo, y del Espíritu Santo: ahora y siempre, y por siglos de siglos. Amén.</p>`
+},
+
+'difuntos': {
+  title: 'Oración por los difuntos',
+  body: `<p>En tus manos, Señor, encomiendo las almas de tus siervos <em>(Nombres)</em>, Y te suplico que les concedas descanso en el lugar de tu reposo, donde descansan todos tus santos benditos, y donde la luz de tu semblante brilla para siempre.</p>
+<p>Y te ruego también que concedas que nuestras vidas actuales sean piadosas, sobrias y sin culpa, que también nosotros seamos dignos de entrar en tu Reino celestial con aquellos que amamos pero que ya no vemos: porque tú eres la Resurrección, y la vida y el reposo de tus siervos difuntos, oh Cristo nuestro Dios, y a ti atribuimos gloria: al Padre, y al Hijo, y al Espíritu Santo; ahora y siempre, y hasta siglos de siglos. Amén.</p>`
+},
+
+'arrepentimiento': {
+  title: 'Oración de arrepentimiento',
+  body: `<p>Oh Señor nuestro Dios, bueno y misericordioso, reconozco todos mis pecados que he cometido todos los días de mi vida, en pensamiento, palabra y obra; en cuerpo y alma por igual. Lamento sinceramente haberte ofendido alguna vez, y sinceramente me arrepiento; con lágrimas te ruego humildemente, oh Señor; perdóname de todas tus transgresiones pasadas de tu misericordia y líbrame de ellas.</p>
+<p>Resuelvo firmemente, con la ayuda de Tu Gracia, enmendar mi estilo de vida y no pecar más; para que pueda caminar en el camino de los justos y ofrecer alabanza y gloria al Nombre del Padre, Hijo y Espíritu Santo. Amén.</p>`
+},
+
+'templo': {
+  title: 'Oración al entrar en el templo',
+  body: `<p>Entraré en tu casa en la multitud de tu misericordia, y en tu temor adoraré hacia tu santo templo. Guíame, oh Señor, en tu justicia a causa de mis enemigos; Ábrete camino delante de mí, para que con una mente clara pueda glorificarte para siempre, un poder divino adorado en tres personas: Padre, Hijo y Espíritu Santo. Amén.</p>`
+},
+
+'icono-cristo': {
+  title: 'Oración ante el Ícono de Cristo',
+  body: `<p>Reverenciamos tu ícono inmaculado, oh Señor misericordioso, y pedimos perdón por nuestras transgresiones, oh Cristo nuestro Dios: porque de tu propia voluntad te complació subir la Cruz en la carne, para que puedas librar de la esclavitud al enemigo a aquellos que te habías puesto de moda.</p>
+<p>Por lo tanto, clamamos en voz alta a ti: has llenado todas las cosas de alegría, oh nuestro Salvador, porque has venido para salvar al mundo.</p>`
+},
+
+'salmo50': {
+  title: 'Salmo 50',
+  subtitle: 'Martes, Jueves y Sábado',
+  body: `<p>Apiádate de mí, oh Dios, según tu gran misericordia; según tu inmensa bondad, borra mi iniquidad. Lávame más y más de mi maldad y purifícame de mis pecados. Pues reconozco mis culpas y mi pecado está siempre ante mí.</p>
+<p>Contra ti, sólo contra ti, he pecado y delante de ti he hecho el mal, por lo tanto eres reconocido justo en tu sentencia y soberano en tu juicio. Considera que en maldad fui modelado y en pecado me concibió mi madre. Porque, Tú que amas la verdad en lo interior me descubres los misterios profundos de tu sabiduría.</p>
+<p>Rocíame con hisopo y seré puro; lávame y emblanqueceré más que la nieve. Hazme escuchar la alegría y el júbilo, y mis huesos abatidos se estremecerán de regocijo. Aparta tu rostro de mis pecados y borra todas mis iniquidades.</p>
+<p>Crea en mí, oh Dios, un corazón puro y renueva dentro de mí un espíritu recto. No me alejes de tu presencia y no quites de mí tu Espíritu Santo. Devuélveme el gozo de tu salvación y un espíritu libre me sustente. Enseñaré a los impíos tus caminos y los pecadores volverán a Ti.</p>
+<p>Líbrame de la sangre, oh Dios, Dios de mi salvación y aclamará mi lengua tu justicia. Abre, Señor, mis labios y cantará mi boca tus alabanzas. Pues no es sacrificio lo que te complace. Si te ofreciera un holocausto no lo quieres. El sacrificio para Dios es el espíritu arrepentido. Al corazón contrito y humillado, Tú, oh Dios, no lo desprecias.</p>
+<p>En tu bondad, Señor, trata benignamente a Sión y reconstruye las murallas de Jerusalén. Entonces aceptarás el sacrificio de justicia, las ofrendas y los holocaustos. Entonces se te ofrecerán víctimas en tu altar.</p>`
+},
+
+'salmo69': {
+  title: 'Salmo 69',
+  subtitle: 'Auxilio urgente',
+  body: `<p>Oh Dios, acude a librarme; apresúrate, oh Dios, a socorrerme. Sean avergonzados y confundidos los que buscan mi vida; sean vueltos atrás y avergonzados los que mi mal desean. Sean vueltos atrás, en pago de su afrenta hecha, los que se burlan de mí.</p>
+<p>Gócense y alégrense en ti todos los que te buscan y digan siempre los que aman tu salvación: Engrandecido sea Dios. Yo estoy afligido y menesteroso; apresúrate a mí, oh Dios. Ayuda mía y mi libertador eres tú; Oh Señor, no te detengas.</p>`
+},
+
+'salmo142': {
+  title: 'Salmo 142',
+  subtitle: 'En tribulación',
+  body: `<p>Oh Señor, oye mi oración, escucha mis súplicas; Respóndeme por tu verdad, por tu justicia. No entres en juicio con tu siervo; Porque no se justificará delante de Ti ningún ser humano. Porque ha perseguido el enemigo mi alma; Ha postrado en tierra mi vida; Me ha hecho habitar en tinieblas como los ya muertos. Y dominó la desesperanza mi espíritu; Está atormentado mi corazón.</p>
+<p>Me acordé de los días antiguos; Meditaba en todas tus acciones; Meditaba en las obras de tus manos. Extendí mis manos a Ti, y mi alma a Ti como la tierra árida. Respóndeme pronto, oh Señor, porque desfallece mi espíritu; No escondas de mí tu rostro, no venga yo a ser semejante a los que descienden a la fosa.</p>
+<p>Hazme oír por la mañana tu misericordia, porque en Ti confié; Hazme saber el camino por donde he de ir, porque a Ti elevé mi alma. Socórreme de mis enemigos, oh Señor; en Ti me refugié. Enséñame a hacer tu voluntad, porque tú eres mi Dios; Tu buen espíritu me guíe a tierra de rectitud.</p>
+<p>Oh Señor, vivifícame por tu nombre; Por tu justicia sacarás mi alma de angustia. Y por tu misericordia disiparás a mis enemigos. Y destruirás a todos los adversarios de mi alma, porque yo soy tu siervo.</p>`
+},
+
+'credo': {
+  title: 'Credo — Símbolo de la Fe',
+  subtitle: 'Lunes, Miércoles y Viernes (en la mañana)',
+  body: `<p>Creo en un solo Dios, Padre Todopoderoso, Creador del Cielo y de la Tierra, y de todo lo visible e invisible.</p>
+<p>Y en un solo Señor Jesucristo, Hijo Unigénito de Dios, nacido del Padre antes de todos los siglos; Luz de Luz, Dios verdadero de Dios verdadero, nacido, no creado, consustancial al Padre, por quien todo fue hecho.</p>
+<p>Y quien por nosotros los hombres y para nuestra salvación, descendió del cielo, se encarnó del Espíritu Santo y María Virgen y se hizo hombre.</p>
+<p>Y crucificado también por nosotros, bajo Poncio Pilato; padeció y fue sepultado.</p>
+<p>Y resucitó al tercer día, según las Escrituras.</p>
+<p>Y subió a los cielos y está sentado a la diestra del Padre.</p>
+<p>Y otra vez ha de venir con gloria a juzgar a los vivos y a los muertos, y su Reino no tendrá fin.</p>
+<p>Y en el Espíritu Santo, Señor, Vivificador, que procede del Padre, que con el Padre y el Hijo es juntamente adorado y glorificado, que habló por los Profetas.</p>
+<p>Y en la Iglesia que es Una, Santa, Católica y Apostólica.</p>
+<p>Y Confieso un solo bautismo para la remisión de los pecados.</p>
+<p>Y espero la resurrección de los muertos.</p>
+<p>Y la vida del siglo venidero. Amén.</p>`
+}
+
+}; // end prayers
+</script>
+</body>
+</html>
